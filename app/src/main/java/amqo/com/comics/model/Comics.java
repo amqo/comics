@@ -22,10 +22,12 @@ public class Comics {
                 : mComicsData.getComics();
     }
 
-    public int getCurrentOffset() {
+    public String getNextOffset() {
 
-        return mComicsData == null ? 0
+        int currentOffset = mComicsData == null ? 0
                 : mComicsData.getCurrentOffset();
+
+        return Integer.toString(currentOffset + mComicsData.getCount());
     }
 
     public boolean isInLastPage() {

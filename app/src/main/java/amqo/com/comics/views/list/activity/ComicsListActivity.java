@@ -11,6 +11,8 @@ import android.view.View;
 import javax.inject.Inject;
 
 import amqo.com.comics.R;
+import amqo.com.comics.injection.ComicItemListComponent;
+import amqo.com.comics.injection.modules.ComicsDetailModule;
 import amqo.com.comics.model.Comic;
 import amqo.com.comics.model.ComicImage;
 import amqo.com.comics.model.Comics;
@@ -107,10 +109,13 @@ public class ComicsListActivity extends BaseComicsActivity implements ComicsCont
         if (mTwoPane) {
             Bundle arguments = new Bundle();
             arguments.putInt(ComicItemDetailFragment.COMIC_ARG, comic.getId());
-            ComicItemDetailFragment fragment = new ComicItemDetailFragment();
-            fragment.setArguments(arguments);
+            mFragment = new ComicItemDetailFragment();
+            mFragment.setArguments(arguments);
+
+            injectFragment();
+
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.comicitem_detail_container, fragment)
+                    .replace(R.id.comicitem_detail_container, mFragment)
                     .commit();
         } else {
             Intent intent = new Intent(this, ComicItemDetailActivity.class);
@@ -133,7 +138,17 @@ public class ComicsListActivity extends BaseComicsActivity implements ComicsCont
         return mScreenHelper.convertImageUrl(comicImage);
     }
 
+    @Override
+    public void onComicLoaded(Comic comic) {
+
+    }
+
     private void setupRecyclerView() {
         mRecyclerView.setAdapter((RecyclerView.Adapter) mComicsAdapter);
+    }
+
+    private void injectFragment() {
+        ((ComicItemListComponent)mComponent).getComicDetailComponent(
+                new ComicsDetailModule()).inject(mFragment);
     }
 }

@@ -28,6 +28,8 @@ public interface ComicsContract {
         String convertImageUrl(ComicImage comicImage);
 
         void createComponent();
+
+        void onComicLoaded(Comic comic);
     }
 
     interface ListView extends View {
@@ -39,10 +41,5 @@ public interface ComicsContract {
         void onComicInteraction(Comic comic);
 
         void clearComics();
-    }
-
-    interface DetailView extends View {
-
-        void onComicLoaded(Comic comic);
     }
 }

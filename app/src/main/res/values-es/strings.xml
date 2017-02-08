@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Comics</string>
+    <string name="Notification.Action.Connect">Conectar</string>
+    <string name="Toast.Connection.Off">Se ha perdido la conexión a Internet!</string>
+    <string name="title_item_detail">Detalle de Comic</string>
+</resources>

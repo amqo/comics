@@ -2,7 +2,6 @@ package amqo.com.comics.views.detail.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +12,7 @@ import javax.inject.Inject;
 
 import amqo.com.comics.R;
 import amqo.com.comics.model.Comic;
+import amqo.com.comics.model.contracts.ComicsContract;
 import amqo.com.comics.model.view.ComicsContent;
 import amqo.com.comics.views.BaseComicsView;
 import amqo.com.comics.views.detail.activity.ComicItemDetailActivity;
@@ -31,14 +31,13 @@ public class ComicItemDetailFragment extends Fragment implements BaseComicsView 
     public static final String COMIC_ARG = "COMIC_ARG";
 
     @Inject protected ComicsContent mComicsContent;
+    @Inject protected ComicsContract.View mComicView;
 
-    @Nullable
-    @BindView(R.id.toolbar_layout)
-    protected CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.comic_item_detail)
     protected TextView mComicDetailText;
 
     private Comic mComic;
+    private int mComicId;
 
     public ComicItemDetailFragment() {
     }
@@ -46,6 +45,16 @@ public class ComicItemDetailFragment extends Fragment implements BaseComicsView 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(COMIC_ARG))
+            mComicId = savedInstanceState.getInt(COMIC_ARG);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mComic != null)
+            outState.putInt(COMIC_ARG, mComic.getId());
     }
 
     @Override
@@ -55,19 +64,16 @@ public class ComicItemDetailFragment extends Fragment implements BaseComicsView 
 
         ButterKnife.bind(this, rootView);
 
-        if (getArguments().containsKey(COMIC_ARG)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
+        if (mComicsContent == null) return rootView;
+        if (getArguments().containsKey(COMIC_ARG) && mComicsContent != null)
             mComic = mComicsContent.getById(getArguments().getInt(COMIC_ARG));
 
-            if (mComic == null) return rootView;
-            if (mCollapsingToolbar != null) {
-                mCollapsingToolbar.setTitle(mComic.getTitle());
-            }
-            mComicDetailText.setText(mComic.getDescription());
-        }
+        if (mComic == null && mComicId > 0) mComic = mComicsContent.getById(mComicId);
 
+        if (mComic == null) return rootView;
+        mComicView.onComicLoaded(mComic);
+
+        mComicDetailText.setText(mComic.getDescription());
 
         return rootView;
     }

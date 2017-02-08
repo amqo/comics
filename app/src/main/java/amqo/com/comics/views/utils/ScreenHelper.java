@@ -43,6 +43,10 @@ public class ScreenHelper {
         return imageCreator.convertImageUrl(comicImage);
     }
 
+    public boolean isPortrait() {
+        return getScreenOrientation() == Configuration.ORIENTATION_PORTRAIT;
+    }
+
 
     protected int getScreenOrientation() {
         return mActivity.getResources().getConfiguration().orientation;

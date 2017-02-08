@@ -4,9 +4,7 @@ import android.app.Activity;
 
 import amqo.com.comics.api.ComicsEndpoint;
 import amqo.com.comics.injection.scopes.PerActivity;
-import amqo.com.comics.model.Comics;
 import amqo.com.comics.model.contracts.ComicsContract;
-import amqo.com.comics.model.view.ComicsContent;
 import amqo.com.comics.views.BaseComicsView;
 import amqo.com.comics.views.detail.activity.ComicDetailPresenter;
 import amqo.com.comics.views.detail.activity.ComicItemDetailActivity;
@@ -37,10 +35,5 @@ public class ComicsDetailParentModule {
     @Provides @PerActivity
     ComicsContract.View providesComicsDetailActivityView() {
         return mComicItemDetailActivity;
-    }
-
-    @Provides @PerActivity
-    ComicsContent providesComicsContent() {
-        return new ComicsContent(new Comics());
     }
 }

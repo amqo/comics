@@ -4,6 +4,7 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import amqo.com.comics.api.ComicsEndpoint;
 import amqo.com.comics.model.Comics;
@@ -40,9 +41,14 @@ public class ComicsListPresenter
 
         if (isInLastPage()) return;
 
-        int currentOffset = getCurrentOffset();
-
         getComicsView().setLoading(true);
+
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put(ComicsEndpoint.OFFSET_PARAMETER, getNextOffset());
+
+        Observable<Comics> moviesObservable = mComicsEndpoint.getComics(
+                CHARACTER_ID, parameters);
+        doSubscribe(moviesObservable);
     }
 
     @Override
@@ -70,9 +76,9 @@ public class ComicsListPresenter
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public int getCurrentOffset() {
-        if (mLastReceivedComics == null) return 0;
-        return mLastReceivedComics.getCurrentOffset();
+    public String getNextOffset() {
+        if (mLastReceivedComics == null) return "0";
+        return mLastReceivedComics.getNextOffset();
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)

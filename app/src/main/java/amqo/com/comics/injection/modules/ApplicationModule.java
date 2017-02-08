@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 import javax.inject.Singleton;
 
 import amqo.com.comics.ComicsApplication;
+import amqo.com.comics.model.Comics;
+import amqo.com.comics.model.view.ComicsContent;
 import dagger.Module;
 import dagger.Provides;
 
@@ -26,5 +28,10 @@ public class ApplicationModule {
     @Provides @Singleton
     SharedPreferences provicesSharedPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(mApplication);
+    }
+
+    @Provides @Singleton
+    ComicsContent providesComicsContent() {
+        return new ComicsContent(new Comics());
     }
 }

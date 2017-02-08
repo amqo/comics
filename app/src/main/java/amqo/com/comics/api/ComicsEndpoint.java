@@ -12,6 +12,8 @@ public interface ComicsEndpoint {
 
     String BASE_API_URL = "http://gateway.marvel.com";
 
+    String OFFSET_PARAMETER = "offset";
+
     @GET("/v1/public/characters/{characterId}/comics")
     Observable<Comics> getComics(
             @Path("characterId") String characterId,

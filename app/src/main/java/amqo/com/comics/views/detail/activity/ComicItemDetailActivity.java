@@ -2,13 +2,20 @@ package amqo.com.comics.views.detail.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import javax.inject.Inject;
 
+import amqo.com.comics.ComicsApplication;
 import amqo.com.comics.R;
 import amqo.com.comics.injection.ComicDetailParentComponent;
 import amqo.com.comics.injection.modules.ComicsDetailModule;
@@ -16,7 +23,6 @@ import amqo.com.comics.model.Comic;
 import amqo.com.comics.model.ComicImage;
 import amqo.com.comics.model.contracts.ComicsContract;
 import amqo.com.comics.model.view.ComicViewContext;
-import amqo.com.comics.model.view.ComicsContent;
 import amqo.com.comics.views.BaseComicsActivity;
 import amqo.com.comics.views.detail.fragment.ComicItemDetailFragment;
 import amqo.com.comics.views.list.activity.ComicsListActivity;
@@ -24,8 +30,6 @@ import amqo.com.comics.views.utils.ScreenHelper;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-
-import static amqo.com.comics.R.id.fab;
 
 /**
  * An activity representing a single ComicItem detail screen. This
@@ -35,47 +39,32 @@ import static amqo.com.comics.R.id.fab;
  */
 public class ComicItemDetailActivity
         extends BaseComicsActivity
-        implements ComicsContract.DetailView {
+        implements ComicsContract.View {
 
-    @Inject ComicsContent mComicsContent;
+    @Inject ScreenHelper mScreenHelper;
 
-    @BindView(fab)
-    protected FloatingActionButton mFab;
     @BindView(R.id.detail_toolbar)
     protected Toolbar mToolbar;
+    @BindView(R.id.app_bar)
+    protected AppBarLayout mAppBarLayout;
+    @Nullable @BindView(R.id.collapsing_image)
+    protected ImageView mCollapsingImage;
+    @Nullable @BindView(R.id.toolbar_layout)
+    protected CollapsingToolbarLayout mCollapsingToolbar;
 
     private Unbinder mUnbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comicitem_detail);
 
         mUnbinder = ButterKnife.bind(this);
 
-        setSupportActionBar(mToolbar);
+        initActionBar();
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        if (savedInstanceState == null) {
-
-            Bundle arguments = new Bundle();
-            arguments.putInt(ComicItemDetailFragment.COMIC_ARG,
-                    getIntent().getIntExtra(ComicItemDetailFragment.COMIC_ARG, 0));
-
-            ComicItemDetailFragment fragment = new ComicItemDetailFragment();
-            fragment.setArguments(arguments);
-
-            ((ComicDetailParentComponent)mComponent).getComicDetailComponent(
-                    new ComicsDetailModule(mComicsContent)).inject(fragment);
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.comicitem_detail_container, fragment)
-                    .commit();
-        }
+        initFragment(savedInstanceState == null);
 
         boolean connected = mConnectivityNotifier.isConnected();
         mComicsPresenter.onNetworkConnectionChanged(connected);
@@ -89,6 +78,7 @@ public class ComicItemDetailActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
         if (id == android.R.id.home) {
             navigateUpTo(new Intent(this, ComicsListActivity.class));
@@ -104,9 +94,10 @@ public class ComicItemDetailActivity
 
     @Override
     public ComicViewContext getComicViewContext() {
+
         ComicViewContext comicViewContext = new ComicViewContext();
         comicViewContext.context = this;
-        comicViewContext.view = mFab;
+        comicViewContext.view = mFragment.getView();
         return comicViewContext;
     }
 
@@ -118,5 +109,68 @@ public class ComicItemDetailActivity
     @Override
     public void onComicLoaded(Comic comic) {
 
+        if (mCollapsingToolbar != null) {
+            mCollapsingToolbar.setTitle(comic.getTitle());
+
+            if (mCollapsingImage != null) {
+                Glide.with(ComicsApplication.getInstance())
+                        .load(mScreenHelper.convertImageUrl(
+                                comic.getComicThumbnail(), ScreenHelper.LANDSCAPE))
+                        .crossFade()
+                        .fitCenter()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(mCollapsingImage);
+            }
+        }
+    }
+
+    private void initActionBar() {
+
+        setSupportActionBar(mToolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        if (mCollapsingToolbar != null) {
+            mCollapsingToolbar.setTitle("");
+
+            if (!mScreenHelper.isPortrait()) {
+                mAppBarLayout.setExpanded(false);
+                AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mCollapsingToolbar.getLayoutParams();
+                params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
+                mCollapsingToolbar.setLayoutParams(params);
+                mAppBarLayout.setExpanded(false);
+
+            }
+        }
+    }
+
+    private void initFragment(boolean first) {
+
+        if (first) {
+            Bundle arguments = new Bundle();
+            arguments.putInt(ComicItemDetailFragment.COMIC_ARG,
+                    getIntent().getIntExtra(ComicItemDetailFragment.COMIC_ARG, 0));
+
+            mFragment = new ComicItemDetailFragment();
+            mFragment.setArguments(arguments);
+
+            injectFragment();
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.comicitem_detail_container, mFragment)
+                    .commit();
+        } else {
+            mFragment = (ComicItemDetailFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.comicitem_detail_container);
+            injectFragment();
+        }
+    }
+
+    private void injectFragment() {
+        ((ComicDetailParentComponent)mComponent).getComicDetailComponent(
+                new ComicsDetailModule()).inject(mFragment);
     }
 }

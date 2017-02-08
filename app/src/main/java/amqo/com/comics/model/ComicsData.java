@@ -32,4 +32,8 @@ public class ComicsData {
     public boolean isInLastPage() {
         return mOffset + mCount == mTotal;
     }
+
+    public int getCount() {
+        return mCount;
+    }
 }
