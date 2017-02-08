@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Comics</string>
+    <string name="title_comicitem_detail">ComicItem Detail</string>
+
+    <string name="Toast.Connection.Off">Connection lost to Internet!</string>
+    <string name="Notification.Action.Connect">Connect</string>
+</resources>
