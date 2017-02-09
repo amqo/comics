@@ -18,21 +18,21 @@ public abstract class NotificationsHelper {
 
         if (comicsView == null || comicsView.getComicViewContext() == null) return null;
 
-        final ComicViewContext moviesContext = comicsView.getComicViewContext();
-        if (moviesContext.view == null) return null;
+        final ComicViewContext comicContext = comicsView.getComicViewContext();
+        if (comicContext.view == null) return null;
 
-        String message = moviesContext.context.getString(R.string.Toast_Connection_Off);
+        String message = comicContext.context.getString(R.string.Toast_Connection_Off);
         int color = Color.WHITE;
 
-        Snackbar snackbar = Snackbar.make(moviesContext.view, message, Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = Snackbar.make(comicContext.view, message, Snackbar.LENGTH_INDEFINITE);
 
-        snackbar.setAction(moviesContext.context.getString(R.string.Notification_Action_Connect)
+        snackbar.setAction(comicContext.context.getString(R.string.Notification_Action_Connect)
                 .toUpperCase(Locale.getDefault()), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentSettings = new Intent(android.provider.Settings.ACTION_SETTINGS);
                 intentSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                moviesContext.context.startActivity(intentSettings);
+                comicContext.context.startActivity(intentSettings);
             }
         });
 

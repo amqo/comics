@@ -46,9 +46,9 @@ public class ComicsListPresenter
         Map<String, String> parameters = new HashMap<>();
         parameters.put(ComicsEndpoint.OFFSET_PARAMETER, getNextOffset());
 
-        Observable<Comics> moviesObservable = mComicsEndpoint.getComics(
+        Observable<Comics> comicsObservable = mComicsEndpoint.getComics(
                 CHARACTER_ID, parameters);
-        doSubscribe(moviesObservable);
+        doSubscribe(comicsObservable);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class ComicsListPresenter
 
         getComicsView().clearComics();
 
-        Observable<Comics> moviesObservable = mComicsEndpoint.getComics(
+        Observable<Comics> comicsObservable = mComicsEndpoint.getComics(
                 CHARACTER_ID, new HashMap<String, String>());
-        doSubscribe(moviesObservable);
+        doSubscribe(comicsObservable);
     }
 
     protected void initComicsComsumer() {
