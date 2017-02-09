@@ -17,17 +17,25 @@
     
     -->
 
-    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/comic_item_list"
-        android:name="amqo.com.comics.ComicItemListFragment"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/list_refresh"
         android:layout_width="@dimen/item_width"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        app:layoutManager="LinearLayoutManager"
-        tools:context="amqo.com.comics.views.list.activity.ComicsListActivity"
-        tools:listitem="@layout/comic_list_item" />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/comic_item_list"
+            android:name="amqo.com.comics.ComicItemListFragment"
+            android:layout_width="@dimen/item_width"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            app:layoutManager="LinearLayoutManager"
+            tools:context="amqo.com.comics.views.list.activity.ComicsListActivity"
+            tools:listitem="@layout/comic_list_item" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <FrameLayout
         android:id="@+id/comicitem_detail_container"

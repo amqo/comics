@@ -1,6 +1,5 @@
 package amqo.com.comics.views.detail.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -81,16 +80,13 @@ public class ComicItemDetailActivity
 
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            navigateUpTo(new Intent(this, ComicsListActivity.class));
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void setLoading(boolean loading) {
-
-    }
+    // ComicsContract.View methods
 
     @Override
     public ComicViewContext getComicViewContext() {
@@ -107,6 +103,11 @@ public class ComicItemDetailActivity
     }
 
     @Override
+    public float getImageRatio() {
+        return mScreenHelper.getImageRatio(ScreenHelper.PORTRAIT);
+    }
+
+    @Override
     public void onComicLoaded(Comic comic) {
 
         if (mCollapsingToolbar != null) {
@@ -115,7 +116,7 @@ public class ComicItemDetailActivity
             if (mCollapsingImage != null) {
                 Glide.with(ComicsApplication.getInstance())
                         .load(mScreenHelper.convertImageUrl(
-                                comic.getComicThumbnail(), ScreenHelper.LANDSCAPE))
+                                comic.getRandomImage(), ScreenHelper.LANDSCAPE))
                         .crossFade()
                         .fitCenter()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -138,11 +139,6 @@ public class ComicItemDetailActivity
 
             if (!mScreenHelper.isPortrait()) {
                 mAppBarLayout.setExpanded(false);
-                AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) mCollapsingToolbar.getLayoutParams();
-                params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
-                mCollapsingToolbar.setLayoutParams(params);
-                mAppBarLayout.setExpanded(false);
-
             }
         }
     }

@@ -47,6 +47,29 @@ public class ScreenHelper {
         return getScreenOrientation() == Configuration.ORIENTATION_PORTRAIT;
     }
 
+    public float getImageRatio() {
+        float ratio = 1f;
+        int orientation = getScreenOrientation();
+        switch (orientation) {
+            case Configuration.ORIENTATION_PORTRAIT:
+                ratio = getImageRatio(PORTRAIT);
+                break;
+            case Configuration.ORIENTATION_LANDSCAPE:
+                ratio = getImageRatio(LANDSCAPE);
+                break;
+        }
+        return ratio;
+    }
+
+    public float getImageRatio(int ratio) {
+        switch (ratio) {
+            case PORTRAIT:
+                return 1.5f;
+            case LANDSCAPE:
+                return 0.75f;
+        }
+        return 1f;
+    }
 
     protected int getScreenOrientation() {
         return mActivity.getResources().getConfiguration().orientation;

@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="item_width">500dp</dimen>
+    <integer name="grid_columns">2</integer>
+</resources>

@@ -15,7 +15,6 @@ public class ComicsContent {
     private final Map<Integer, Comic> mComicsMap = new HashMap<>();
 
     public ComicsContent(Comics comics) {
-
         addAll(comics);
     }
 

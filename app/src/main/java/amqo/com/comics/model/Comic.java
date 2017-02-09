@@ -3,6 +3,7 @@ package amqo.com.comics.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+import java.util.Random;
 
 public class Comic {
 
@@ -37,7 +38,12 @@ public class Comic {
         return mThumbnail;
     }
 
-    public List<ComicImage> getComicImages() {
-        return mImages;
+    public ComicImage getRandomImage() {
+
+        int size = mImages == null ? 0 : mImages.size();
+        if (size == 0) return new ComicImage();
+        Random random = new Random();
+        int randomIndex = random.nextInt(size);
+        return mImages.get(randomIndex);
     }
 }

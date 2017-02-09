@@ -54,7 +54,7 @@ public class ComicsListPresenter
     @Override
     public void refreshComics() {
 
-        mComicsView.setLoading(true);
+        ((ComicsContract.ListView)mComicsView).setLoading(true);
 
         getComicsView().clearComics();
 
@@ -93,7 +93,7 @@ public class ComicsListPresenter
                 .doOnComplete(new Action() {
                     @Override
                     public void run() throws Exception {
-                        mComicsView.setLoading(false);
+                        ((ComicsContract.ListView)mComicsView).setLoading(false);
                     }
                 })
                 .doOnError(new Consumer<Throwable>() {

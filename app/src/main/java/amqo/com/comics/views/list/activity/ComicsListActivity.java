@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -22,6 +23,7 @@ import amqo.com.comics.model.view.ComicViewContext;
 import amqo.com.comics.views.BaseComicsActivity;
 import amqo.com.comics.views.detail.activity.ComicItemDetailActivity;
 import amqo.com.comics.views.detail.fragment.ComicItemDetailFragment;
+import amqo.com.comics.views.utils.LayoutHelper;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -37,20 +39,24 @@ import butterknife.Unbinder;
 public class ComicsListActivity extends BaseComicsActivity implements ComicsContract.ListView {
 
     @Inject protected ComicsAdapter mComicsAdapter;
+    @Inject AdapterScrollListener mScrollListener;
+    @Inject FabUpView mFabUpView;
 
-    @BindView(R.id.fab)
-    protected FloatingActionButton mFab;
     @BindView(R.id.toolbar)
     protected Toolbar mToolbar;
+    @Nullable @BindView(R.id.list_refresh)
+    protected SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.comic_item_list)
     protected RecyclerView mRecyclerView;
-    @Nullable
-    @BindView(R.id.comicitem_detail_container)
+    @Nullable @BindView(R.id.comicitem_detail_container)
     protected View mItemDetailContainer;
+    @BindView(R.id.up_fab)
+    protected FloatingActionButton mFabUp;
 
     private Unbinder mUnbinder;
 
-    protected boolean mIsRefreshing = false;
+    private boolean mIsRefreshing = false;
+    private boolean mIsLoading = false;
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -68,15 +74,14 @@ public class ComicsListActivity extends BaseComicsActivity implements ComicsCont
         setSupportActionBar(mToolbar);
         mToolbar.setTitle(getTitle());
 
-        setupRecyclerView();
+        initRecyclerView();
+        initOtherViews();
 
         if (mItemDetailContainer != null) {
             mTwoPane = true;
         }
 
-        boolean connected = mConnectivityNotifier.isConnected();
-        if (connected) ((ComicsContract.ListPresenter)mComicsPresenter)
-                .refreshComics();
+        refreshComics();
     }
 
     @Override
@@ -85,23 +90,39 @@ public class ComicsListActivity extends BaseComicsActivity implements ComicsCont
         mUnbinder.unbind();
     }
 
+    // ComicsContract.View methods
+
+    @Override
+    public ComicViewContext getComicViewContext() {
+        ComicViewContext comicViewContext = new ComicViewContext();
+        comicViewContext.context = this;
+        comicViewContext.view = mFragment.getView();
+        return comicViewContext;
+    }
+
+    @Override
+    public String convertImageUrl(ComicImage comicImage) {
+        return mScreenHelper.convertImageUrl(comicImage);
+    }
+
+    @Override
+    public float getImageRatio() {
+        return mScreenHelper.getImageRatio();
+    }
+
+    @Override
+    public void onComicLoaded(Comic comic) {
+
+    }
+
+    // ComicsContract.ListView methods
+
     @Override
     public void onComicsLoaded(Comics comics) {
-
         if (mIsRefreshing) {
             mIsRefreshing = false;
             mComicsAdapter.refreshComics(comics);
         } else mComicsAdapter.addComics(comics);
-    }
-
-    @Override
-    public void setLoading(boolean loading) {
-
-    }
-
-    @Override
-    public void clearComics() {
-        mComicsAdapter.refreshComics(new Comics());
     }
 
     @Override
@@ -126,29 +147,67 @@ public class ComicsListActivity extends BaseComicsActivity implements ComicsCont
     }
 
     @Override
-    public ComicViewContext getComicViewContext() {
-        ComicViewContext comicViewContext = new ComicViewContext();
-        comicViewContext.context = this;
-        comicViewContext.view = mFab;
-        return comicViewContext;
+    public void clearComics() {
+        mComicsAdapter.refreshComics(new Comics());
     }
 
     @Override
-    public String convertImageUrl(ComicImage comicImage) {
-        return mScreenHelper.convertImageUrl(comicImage);
+    public RecyclerView.LayoutManager getLayoutManager() {
+        return mRecyclerView.getLayoutManager();
     }
 
     @Override
-    public void onComicLoaded(Comic comic) {
-
+    public void scrollUp() {
+        mRecyclerView.scrollToPosition(0);
     }
 
-    private void setupRecyclerView() {
+    @Override
+    public void setLoading(boolean loading) {
+        if (mIsLoading == loading) return;
+        mIsLoading = loading;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mSwipeRefreshLayout == null) return;
+                mSwipeRefreshLayout.setRefreshing(mIsLoading);
+            }
+        });
+    }
+
+    @Override
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
+    private void initRecyclerView() {
+        mRecyclerView.setLayoutManager(LayoutHelper.getCustomLayoutManager(this));
         mRecyclerView.setAdapter((RecyclerView.Adapter) mComicsAdapter);
+
+        mFabUpView.setUpFab(mFabUp);
+        mScrollListener.setFabUpView(mFabUpView);
+        mRecyclerView.addOnScrollListener(mScrollListener);
+    }
+
+    private void initOtherViews() {
+        mSwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        if (!mConnectivityNotifier.isConnected())
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        else refreshComics();
+                    }
+                });
     }
 
     private void injectFragment() {
         ((ComicItemListComponent)mComponent).getComicDetailComponent(
                 new ComicsDetailModule()).inject(mFragment);
+    }
+
+    private void refreshComics() {
+        boolean connected = mConnectivityNotifier.isConnected();
+        if (connected) ((ComicsContract.ListPresenter)mComicsPresenter)
+                .refreshComics();
     }
 }

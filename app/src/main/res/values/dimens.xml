@@ -4,4 +4,6 @@
     <dimen name="app_bar_height">250dp</dimen>
     <dimen name="item_width">200dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+
+    <integer name="grid_columns">1</integer>
 </resources>

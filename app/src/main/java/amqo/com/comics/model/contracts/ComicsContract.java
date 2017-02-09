@@ -1,5 +1,7 @@
 package amqo.com.comics.model.contracts;
 
+import android.support.v7.widget.RecyclerView;
+
 import amqo.com.comics.model.Comic;
 import amqo.com.comics.model.ComicImage;
 import amqo.com.comics.model.Comics;
@@ -21,25 +23,29 @@ public interface ComicsContract {
 
     interface View {
 
-        void setLoading(boolean loading);
-
         ComicViewContext getComicViewContext();
 
         String convertImageUrl(ComicImage comicImage);
 
-        void createComponent();
+        float getImageRatio();
 
         void onComicLoaded(Comic comic);
     }
 
     interface ListView extends View {
 
-        ComicViewContext getComicViewContext();
-
         void onComicsLoaded(Comics comics);
 
         void onComicInteraction(Comic comic);
 
         void clearComics();
+
+        RecyclerView.LayoutManager getLayoutManager();
+
+        void scrollUp();
+
+        void setLoading(boolean loading);
+
+        boolean isLoading();
     }
 }

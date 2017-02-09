@@ -5,7 +5,6 @@ import dagger.Module;
 @Module
 public class ComicsDetailModule {
 
-
     public ComicsDetailModule() {
     }
 

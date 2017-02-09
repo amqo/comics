@@ -59,6 +59,7 @@ public class ComicsRecyclerAdapter
 
     @Override
     public void addComics(Comics comics) {
+
         if (comics == null || comics.getComics().isEmpty()) return;
         int previousSize = mComicsContent.size();
         mComicsContent.addAll(comics);
